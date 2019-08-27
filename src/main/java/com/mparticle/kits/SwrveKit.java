@@ -1,10 +1,20 @@
 package com.mparticle.kits;
 
 import android.content.Context;
+import android.content.Intent;
+
+import com.mparticle.MPEvent;
+import com.mparticle.MParticle;
+import com.mparticle.MParticle.UserAttributes;
+import com.mparticle.commerce.CommerceEvent;
+import com.mparticle.commerce.Product;
+import com.mparticle.identity.MParticleUser;
+import com.mparticle.internal.Logger;
+import com.swrve.sdk.*;
 
 import java.util.List;
 import java.util.Map;
-import com.swrve.sdk.*;
+
 
 /**
  *
