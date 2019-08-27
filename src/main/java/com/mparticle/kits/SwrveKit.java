@@ -78,6 +78,30 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
     }
 
     @Override
+    public List<ReportingMessage> logLtvIncrease(BigDecimal valueIncreased, BigDecimal valueTotal, String eventName, Map<String, String> contextInfo) {
+        //no-op
+        return null;
+    }
+
+    @Override
+    public List<ReportingMessage> leaveBreadcrumb(String breadcrumb) {
+        //no-op
+        return null;
+    }
+
+    @Override
+    public List<ReportingMessage> logError(String message, Map<String, String> errorAttributes) {
+        //no-op
+        return null;
+    }
+
+    @Override
+    public List<ReportingMessage> logException(Exception exception, Map<String, String> exceptionAttributes, String message) {
+        //no-op
+        return null;
+    }
+
+    @Override
     public List<ReportingMessage> logEvent(MPEvent event) {
         //TODO: handle custom events
         return null;
@@ -107,6 +131,26 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
     }
 
     @Override
+    public  void onIdentifyCompleted(MParticleUser mParticleUser, FilteredIdentityApiRequest identityApiRequest) {
+        //no-op
+    }
+
+    @Override
+    public void onLoginCompleted(MParticleUser mParticleUser, FilteredIdentityApiRequest identityApiRequest) {
+        //no-op
+    }
+
+    @Override
+    public void onLogoutCompleted(MParticleUser mParticleUser, FilteredIdentityApiRequest identityApiRequest) {
+        //no-op
+    }
+
+    @Override
+    public void onModifyCompleted(MParticleUser mParticleUser, FilteredIdentityApiRequest identityApiRequest) {
+        //no-op
+    }
+
+    @Override
     public void onUserIdentified(MParticleUser mParticleUser) {
         //TODO: init sdk once mpid is supplied?
     }
@@ -129,6 +173,16 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
     @Override
     public void onSetUserAttributeList(String attributeKey, List<String> attributeValueList, FilteredMParticleUser user) {
         //TODO: user update for key, with comma-separated list for value
+    }
+
+    @Override
+    public void onSetUserTag(String key, FilteredMParticleUser user){
+        //no-op
+    }
+
+    @Override
+    public void onConsentStateUpdated(ConsentState oldState, ConsentState newState, FilteredMParticleUser user) {
+        //no-op
     }
 
     @Override
