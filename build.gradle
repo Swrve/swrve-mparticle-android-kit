@@ -3,20 +3,23 @@ buildscript {
         mavenLocal()
         mavenCentral()
         google()
-        jcenter { url 'https://dl.bintray.com/swrve-inc/android' }
-        maven { url 'https://maven.google.com' }
     }
     dependencies {
-        classpath 'com.mparticle:android-kit-plugin:+'
+        classpath 'com.mparticle:android-kit-plugin:5.9.8'
     }
 }
 
 apply plugin: 'com.mparticle.kit'
 
+
+repositories {
+    jcenter { url 'https://dl.bintray.com/swrve-inc/android' }
+    maven { url 'https://maven.google.com' }
+}
 dependencies {
     //TODO: Option 1: Replace with your Maven Central Dependency (preferred)
     //compile 'com.example:example-artifact:1.2.3'
-    compile 'com.swrve.sdk.android:swrve-firebase:5.3.2'
+    implementation 'com.swrve.sdk.android:swrve-firebase:5.3.2'
 
     //TODO: Option 2: Include your jar in ./libs only if you're not in Maven Central
     //TODO:           Please name the jar based on the version, ie AcmeSDK1234.jar
