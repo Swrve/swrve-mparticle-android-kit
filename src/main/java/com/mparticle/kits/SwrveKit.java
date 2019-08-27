@@ -2,6 +2,11 @@ package com.mparticle.kits;
 
 import android.content.Context;
 import android.content.Intent;
+import android.app.Activity;
+import android.content.SharedPreferences;
+import android.location.Location;
+import android.net.Uri;
+import android.os.Bundle;
 
 import com.mparticle.MPEvent;
 import com.mparticle.MParticle;
@@ -10,8 +15,12 @@ import com.mparticle.commerce.CommerceEvent;
 import com.mparticle.commerce.Product;
 import com.mparticle.identity.MParticleUser;
 import com.mparticle.internal.Logger;
+import com.mparticle.consent.ConsentState;
 import com.swrve.sdk.*;
 
+import java.lang.ref.WeakReference;
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
