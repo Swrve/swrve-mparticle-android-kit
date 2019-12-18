@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.Map;
 
+private static final SWRVE_MPARTICLE_VERSION_NUMBER = "1.0.0";
 
 /**
  *
@@ -51,6 +52,14 @@ import java.util.Map;
  *  - ./consumer-proguard.pro
  */
 public class SwrveKit extends KitIntegration implements KitIntegration.UserAttributeListener, KitIntegration.CommerceListener, KitIntegration.EventListener, KitIntegration.PushListener, KitIntegration.IdentityListener {
+
+    private void startSwrveSDK(Activity activity, long mpid) {
+        SwrveSDK.start(activity, Long.toString(mpid));
+        Map<String,String> version = new HashMap<String,String>();
+        version.put("swrve.mparticle_sdk_version", SWRVE_MPARTICLE_VERSION_NUMBER);
+        SwrveSDK.userUpdate();
+        SwrveSDK.sendQueudEvents();
+    }
 
     @Override
     protected List<ReportingMessage> onKitCreate(Map<String, String> settings, Context context) {
@@ -240,7 +249,7 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
         long mpid = mParticleUser.getId();
         Activity activity = super.getCurrentActivity().get();
         if (activity!=null && !SwrveSDK.isStarted()) {
-            SwrveSDK.start(activity, Long.toString(mpid));       
+            startSwrveSDK(activity, mpid);       
         }
     }
 
@@ -249,7 +258,7 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
         long mpid = mParticleUser.getId();
         Activity activity = super.getCurrentActivity().get();
         if (activity!=null && !SwrveSDK.isStarted()) {
-            SwrveSDK.start(activity, Long.toString(mpid));       
+            startSwrveSDK(activity, mpid);       
         }
     }
 
@@ -263,7 +272,7 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
         long mpid = mParticleUser.getId();
         Activity activity = super.getCurrentActivity().get();
         if (activity!=null && !SwrveSDK.isStarted()) {
-            SwrveSDK.start(activity, Long.toString(mpid));       
+            startSwrveSDK(activity, mpid);       
         }
     }
 
@@ -272,7 +281,7 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
         long mpid = mParticleUser.getId();
         Activity activity = super.getCurrentActivity().get();
         if (activity!=null && !SwrveSDK.isStarted()) {
-            SwrveSDK.start(activity, Long.toString(mpid));       
+            startSwrveSDK(activity, mpid);       
         }
     }
 
@@ -281,7 +290,7 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
         long mpid = user.getId();
         Activity activity = super.getCurrentActivity().get();
         if (activity!=null && !SwrveSDK.isStarted()) {
-            SwrveSDK.start(activity, Long.toString(mpid));       
+            startSwrveSDK(activity, mpid);       
         }
 
         Map<String,Object> attributes = user.getUserAttributes();
@@ -297,7 +306,7 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
         long mpid = user.getId();
         Activity activity = super.getCurrentActivity().get();
         if (activity!=null && !SwrveSDK.isStarted()) {
-            SwrveSDK.start(activity, Long.toString(mpid));       
+            startSwrveSDK(activity, mpid);       
         }
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put(key, "");
@@ -309,7 +318,7 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
         long mpid = user.getId();
         Activity activity = super.getCurrentActivity().get();
         if (activity!=null && !SwrveSDK.isStarted()) {
-            SwrveSDK.start(activity, Long.toString(mpid));       
+            startSwrveSDK(activity, mpid);       
         }
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put(key, value.toString());
@@ -336,7 +345,7 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
         long mpid = user.getId();
         Activity activity = super.getCurrentActivity().get();
         if (activity!=null && !SwrveSDK.isStarted()) {
-            SwrveSDK.start(activity, Long.toString(mpid));       
+            startSwrveSDK(activity, mpid);       
         }
         SwrveSDK.userUpdate(userAttributes); 
     }
