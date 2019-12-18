@@ -56,7 +56,7 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
     private void startSwrveSDK(Activity activity, long mpid) {
         SwrveSDK.start(activity, Long.toString(mpid));
         Map<String,String> version = new HashMap<String,String>();
-        version.put("swrve.mparticle_sdk_version", SWRVE_MPARTICLE_VERSION_NUMBER);
+        version.put("swrve.mparticle_android_integration_version", SWRVE_MPARTICLE_VERSION_NUMBER);
         SwrveSDK.userUpdate();
         SwrveSDK.sendQueudEvents();
     }
