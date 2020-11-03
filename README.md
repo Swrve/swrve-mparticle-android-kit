@@ -15,7 +15,7 @@ This repository contains the [Swrve](https://www.swrve.com/) integration for the
 
     ```groovy
     dependencies {
-        compile 'com.swrve.mparticle:mparticle-android-integration-swrve:1.0.0'
+        compile 'com.swrve.mparticle:mparticle-android-integration-swrve:2.0.0'
     }
     ```
 2. Follow the mParticle Android SDK [quick-start](https://github.com/mParticle/mparticle-android-sdk), then rebuild and launch your app, and verify that you see `"Swrve detected"` in the output of `adb logcat`.

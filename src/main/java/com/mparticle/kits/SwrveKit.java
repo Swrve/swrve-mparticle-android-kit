@@ -16,12 +16,16 @@ import com.mparticle.commerce.CommerceEvent;
 import com.mparticle.commerce.Product;
 import com.mparticle.consent.ConsentState;
 import com.mparticle.identity.MParticleUser;
+import com.mparticle.internal.Logger;
+
 import com.swrve.sdk.Swrve;
+import com.swrve.sdk.SwrveIdentityResponse;
 import com.swrve.sdk.SwrveInitMode;
 import com.swrve.sdk.SwrveNotificationConfig;
 import com.swrve.sdk.SwrvePushServiceDefault;
 import com.swrve.sdk.SwrveSDK;
 import com.swrve.sdk.config.SwrveConfig;
+import com.swrve.sdk.config.SwrveStack;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -50,38 +54,139 @@ import java.util.Map;
  *  - ./consumer-proguard.pro
  */
 public class SwrveKit extends KitIntegration implements KitIntegration.UserAttributeListener, KitIntegration.CommerceListener, KitIntegration.EventListener, KitIntegration.PushListener, KitIntegration.IdentityListener {
-    private static final String SWRVE_MPARTICLE_VERSION_NUMBER = "1.0.0";
+    private static final String SWRVE_MPARTICLE_VERSION_NUMBER = "2.0.0";
+    private static SwrveInitMode SWRVE_INIT_MODE = SwrveInitMode.MANAGED;
+    private static String USER_ID_TYPE = "MPID";
+    private static SwrveStack SWRVE_STACK = SwrveStack.US;
 
-    private void startSwrveSDK(Activity activity, long mpid) {
-        SwrveSDK.start(activity, Long.toString(mpid));
-        Map<String,String> version = new HashMap<String,String>();
-        version.put("swrve.mparticle_android_integration_version", SWRVE_MPARTICLE_VERSION_NUMBER);
-        SwrveSDK.userUpdate(version);
-        SwrveSDK.sendQueuedEvents();
+
+
+    private void startSwrveSDK(Activity activity, MParticleUser user) {
+       // TODO: check mpid or customer id
+        String user_id;
+        if (USER_ID_TYPE.equals("MPID")){
+            user_id = Long.toString(user.getId());
+        }
+        else {
+            user_id = user.getUserIdentities().get(MParticle.IdentityType.CustomerId);
+        }
+        if (user_id != null) {
+            SwrveSDK.start(activity, user_id);
+            Logger.debug("Swrve SDK started in MANAGED mode with swrve user id: " + user_id);
+            Map<String, String> version = new HashMap<String, String>();
+            version.put("swrve.mparticle_android_integration_version", SWRVE_MPARTICLE_VERSION_NUMBER);
+            SwrveSDK.userUpdate(version);
+            SwrveSDK.sendQueuedEvents();
+        }
+    }
+
+    private void identifySwrveUser(MParticleUser user) {
+        String external_id;
+        if (USER_ID_TYPE.equals("MPID")) {
+            external_id = Long.toString(user.getId());
+        } else {
+
+            MParticle.IdentityType identityType;
+            switch (USER_ID_TYPE){
+                case "Customer ID":
+                    identityType = MParticle.IdentityType.CustomerId;
+                    break;
+                case "Other":
+                    identityType = MParticle.IdentityType.Other;
+                    break;
+                case "Other2":
+                    identityType = MParticle.IdentityType.Other2;
+                    break;
+                case "Other3":
+                    identityType = MParticle.IdentityType.Other3;
+                    break;
+                case "Other4":
+                    identityType = MParticle.IdentityType.Other4;
+                    break;
+                case "Other5":
+                    identityType = MParticle.IdentityType.Other5;
+                    break;
+                case "Other6":
+                    identityType = MParticle.IdentityType.Other6;
+                    break;
+                case "Other7":
+                    identityType = MParticle.IdentityType.Other7;
+                    break;
+                case "Other8":
+                    identityType = MParticle.IdentityType.Other8;
+                    break;
+                case "Other9":
+                    identityType = MParticle.IdentityType.Other9;
+                    break;
+                case "Other10":
+                    identityType = MParticle.IdentityType.Other10;
+                    break;
+                default:
+                    identityType = MParticle.IdentityType.CustomerId;
+            }
+            external_id = user.getUserIdentities().get(identityType);
+        }
+        if (external_id != null) {
+            final String ext_id = external_id;
+            SwrveSDK.identify(ext_id, new SwrveIdentityResponse() {
+                @Override
+                public void onSuccess(String status, String swrveId) {
+                    Logger.debug("User successfully identified with Swrve.\tExternal user id: " + ext_id + "\tSwrve user id: " + swrveId);
+                }
+
+                @Override
+                public void onError(int responseCode, String errorMessage) {
+                    Logger.info("User failed to identify with Swrve.\tResponse Code: " + responseCode + "\tMessage: " + errorMessage);
+                }
+            });
+        }
+    }
+
+    private void identityMethodsStart(Activity activity, MParticleUser user) {
+        if (activity!=null && SWRVE_INIT_MODE == SwrveInitMode.MANAGED && !SwrveSDK.isStarted()) {
+            startSwrveSDK(activity, user);
+        }
+        if (SWRVE_INIT_MODE == SwrveInitMode.AUTO) {
+            identifySwrveUser(user);
+        }
+    }
+
+    private void startSdkIfNotStarted(Activity activity, FilteredMParticleUser user) {
+        String user_id;
+        if (USER_ID_TYPE.equals("MPID")){
+            user_id = Long.toString(user.getId());
+        }
+        else {
+            user_id = user.getUserIdentities().get(MParticle.IdentityType.CustomerId);
+        }
+        if (user_id != null) {
+            SwrveSDK.start(activity, user_id);
+            Logger.debug("Swrve SDK started in MANAGED mode with swrve user id: " + user_id);
+            Map<String, String> version = new HashMap<String, String>();
+            version.put("swrve.mparticle_android_integration_version", SWRVE_MPARTICLE_VERSION_NUMBER);
+            SwrveSDK.userUpdate(version);
+            SwrveSDK.sendQueuedEvents();
+        }
     }
 
     @Override
     protected List<ReportingMessage> onKitCreate(Map<String, String> settings, Context context) {
-        /** TODO: Initialize your SDK here
-         * This method is analogous to Application#onCreate, and will be called once per app execution.
-         *
-         * If for some reason you can't start your SDK (such as settings are not present), you *must* throw an Exception
-         *
-         * If you forward any events on startup that are analagous to any mParticle messages types, return them here
-         * as ReportingMessage objects. Otherwise, return null.
-         */
+        int app_id = Integer.parseInt(settings.get("app_id"));
+        String api_key = settings.get("api_key");
+        String stack = settings.get("swrve_stack");
+        if (stack.equals("EU")) SWRVE_STACK = SwrveStack.EU;
+        String init_mode = settings.get("initialization_mode");
+        if (init_mode.equals("AUTO")) SWRVE_INIT_MODE = SwrveInitMode.AUTO;
+        if(SWRVE_INIT_MODE == SwrveInitMode.AUTO) USER_ID_TYPE = settings.get("external_user_id");
+        if(SWRVE_INIT_MODE == SwrveInitMode.MANAGED) USER_ID_TYPE = settings.get("swrve_user_id");
+
         List<ReportingMessage> messageList = new LinkedList<ReportingMessage>();
         SwrveConfig config = new SwrveConfig();
         SwrveNotificationConfig notificationConfig = getNotificationConfig(settings, context);
         config.setNotificationConfig(notificationConfig);
+        config.setInitMode(SWRVE_INIT_MODE);
+        config.setSelectedStack(SWRVE_STACK);
 
-        config.setInitMode(SwrveInitMode.MANAGED);
-        // TODO when MParticleUser and userId is known, call SwrveSDK.start(activity, userId). Do not call start from application layer.
-
-        int app_id = Integer.parseInt(settings.get("app_id"));
-        String api_key = settings.get("api_key");
-        // To use the EU stack, include this in your config.
-        // config.setSelectedStack(SwrveStack.EU);
         SwrveSDK.createInstance( ( (Application) context.getApplicationContext() ), app_id, api_key, config);
         messageList.add(new ReportingMessage(this, ReportingMessage.MessageType.SESSION_START, System.currentTimeMillis(), null));
         return messageList;
@@ -89,8 +194,10 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
 
     private SwrveNotificationConfig getNotificationConfig(Map<String, String> settings, Context context) {
         NotificationChannel channel = null;
+        String notificationChannelId = context.getResources().getString(getResourceId("swrve_notification_channel_id", "string", context));
+        String notificationChannelName = context.getResources().getString(getResourceId("swrve_notification_channel_name", "string", context));
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            channel = new NotificationChannel("100", "Swrve default channel", NotificationManager.IMPORTANCE_DEFAULT);
+            channel = new NotificationChannel(notificationChannelId, notificationChannelName, NotificationManager.IMPORTANCE_DEFAULT);
             if (context.getSystemService(Context.NOTIFICATION_SERVICE) != null) {
                 NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                 notificationManager.createNotificationChannel(channel);
@@ -100,13 +207,14 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
         int iconDrawableId = getResourceId("swrve_push_icon_drawable", "drawable", context);
         int iconMaterialDrawableId = getResourceId("swrve_push_icon_material_drawable", "drawable", context);
         int largeIconDrawableId = getResourceId("swrve_push_large_icon_drawable", "drawable", context);
-        int accentColorResourceId = getResourceId("swrve_push_accent_color_resource", "color", context);
+        int accentColorId = getResourceId("swrve_push_accent_color_hex", "string", context);
+        String accentColorHex = context.getResources().getString(accentColorId);
 
         Class activityClass = getActivityClass(settings, packageName, context);
         SwrveNotificationConfig.Builder notificationConfig = new SwrveNotificationConfig.Builder(iconDrawableId, iconMaterialDrawableId, channel)
                 .activityClass(activityClass)
                 .largeIconDrawableId(largeIconDrawableId)
-                .accentColorResourceId(accentColorResourceId);
+                .accentColorHex(accentColorHex);
         return notificationConfig.build();
     }
 
@@ -122,7 +230,7 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
         return null;
     }
 
-    public static int getResourceId(String pVariableName, String pResourcename, Context context) 
+    public static int getResourceId(String pVariableName, String pResourcename, Context context)
     {
         String packageName = context.getPackageName();
         try {
@@ -130,7 +238,7 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
-        } 
+        }
     }
 
     @Override
@@ -207,9 +315,11 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
                 double givenAmount = new Double(event.getInfo().get("given_amount"));
                 SwrveSDK.currencyGiven(givenCurrency, givenAmount);
 
+            } else {
+                    SwrveSDK.event(event.getEventType().toString().toLowerCase()+"."+event.getEventName(), event.getInfo());
             }
         } else {
-                SwrveSDK.event(event.getEventType().toString().toLowerCase()+"."+event.getEventName(), event.getInfo());            
+                SwrveSDK.event(event.getEventType().toString().toLowerCase()+"."+event.getEventName(), event.getInfo());
         }
         messageList.add(ReportingMessage.fromEvent(this, event));
         return messageList;
@@ -244,21 +354,14 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
 
     @Override
     public void onIdentifyCompleted(MParticleUser mParticleUser, FilteredIdentityApiRequest identityApiRequest) {
-
-        long mpid = mParticleUser.getId();
         Activity activity = super.getCurrentActivity().get();
-        if (activity!=null && !SwrveSDK.isStarted()) {
-            startSwrveSDK(activity, mpid);       
-        }
+        identityMethodsStart(activity,mParticleUser);
     }
 
     @Override
     public void onLoginCompleted(MParticleUser mParticleUser, FilteredIdentityApiRequest identityApiRequest) {
-        long mpid = mParticleUser.getId();
         Activity activity = super.getCurrentActivity().get();
-        if (activity!=null && !SwrveSDK.isStarted()) {
-            startSwrveSDK(activity, mpid);       
-        }
+        identityMethodsStart(activity,mParticleUser);
     }
 
     @Override
@@ -268,45 +371,34 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
 
     @Override
     public void onModifyCompleted(MParticleUser mParticleUser, FilteredIdentityApiRequest identityApiRequest) {
-        long mpid = mParticleUser.getId();
         Activity activity = super.getCurrentActivity().get();
-        if (activity!=null && !SwrveSDK.isStarted()) {
-            startSwrveSDK(activity, mpid);       
-        }
+        identityMethodsStart(activity,mParticleUser);
     }
 
     @Override
     public void onUserIdentified(MParticleUser mParticleUser) {
-        long mpid = mParticleUser.getId();
         Activity activity = super.getCurrentActivity().get();
-        if (activity!=null && !SwrveSDK.isStarted()) {
-            startSwrveSDK(activity, mpid);       
-        }
+        identityMethodsStart(activity,mParticleUser);
     }
 
     @Override
     public void onIncrementUserAttribute (String key, int incrementedBy, String value, FilteredMParticleUser user) {
-        long mpid = user.getId();
         Activity activity = super.getCurrentActivity().get();
-        if (activity!=null && !SwrveSDK.isStarted()) {
-            startSwrveSDK(activity, mpid);       
-        }
+        startSdkIfNotStarted(activity, user);
 
         Map<String,Object> attributes = user.getUserAttributes();
         Map<String,String> newAttributes = new HashMap<String,String>();
         for (Map.Entry<String, Object> entry : attributes.entrySet()) {
             newAttributes.put(entry.getKey(), entry.getValue().toString());
         }
-        SwrveSDK.userUpdate(newAttributes);  
+        SwrveSDK.userUpdate(newAttributes);
     }
 
     @Override
     public void onRemoveUserAttribute(String key, FilteredMParticleUser user) {
-        long mpid = user.getId();
         Activity activity = super.getCurrentActivity().get();
-        if (activity!=null && !SwrveSDK.isStarted()) {
-            startSwrveSDK(activity, mpid);       
-        }
+        startSdkIfNotStarted(activity, user);
+
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put(key, "");
         SwrveSDK.userUpdate(attributes);
@@ -314,11 +406,9 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
 
     @Override
     public void onSetUserAttribute(String key, Object value, FilteredMParticleUser user) {
-        long mpid = user.getId();
         Activity activity = super.getCurrentActivity().get();
-        if (activity!=null && !SwrveSDK.isStarted()) {
-            startSwrveSDK(activity, mpid);       
-        }
+        startSdkIfNotStarted(activity, user);
+
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put(key, value.toString());
         SwrveSDK.userUpdate(attributes);
@@ -341,12 +431,10 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
 
     @Override
     public void onSetAllUserAttributes(Map<String, String> userAttributes, Map<String, List<String>> userAttributeLists, FilteredMParticleUser user) {
-        long mpid = user.getId();
         Activity activity = super.getCurrentActivity().get();
-        if (activity!=null && !SwrveSDK.isStarted()) {
-            startSwrveSDK(activity, mpid);       
-        }
-        SwrveSDK.userUpdate(userAttributes); 
+        startSdkIfNotStarted(activity, user);
+
+        SwrveSDK.userUpdate(userAttributes);
     }
 
     @Override
@@ -357,15 +445,13 @@ public class SwrveKit extends KitIntegration implements KitIntegration.UserAttri
 
     @Override
     public List<ReportingMessage> setOptOut(boolean optedOut) {
-        //TODO: Disable or enable your SDK when a user opts out.
-        //TODO: If your SDK can not be opted out of, return null
         ReportingMessage optOutMessage = new ReportingMessage(this, ReportingMessage.MessageType.OPT_OUT, System.currentTimeMillis(), null);
         return null;
     }
 
     @Override
     protected void onKitDestroy() {
-        //TODO: clear Swrve storage
+    // do nothing
     }
 
 }

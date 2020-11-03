@@ -38,7 +38,7 @@ repositories {
 }
 dependencies {
     //TODO: Option 1: Replace with your Maven Central Dependency (preferred)
-    implementation ('com.swrve.sdk.android:swrve-firebase:6.3.0')
+    implementation ('com.swrve.sdk.android:swrve-firebase:7.3.1')
 
     //TODO: Option 2: Include your jar in ./libs only if you're not in Maven Central
     //TODO:           Please name the jar based on the version, ie AcmeSDK1234.jar
@@ -101,4 +101,3 @@ bintray {
 }
 
 apply plugin: 'com.f2prateek.javafmt'
-
