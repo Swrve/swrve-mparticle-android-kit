@@ -1,98 +1,63 @@
 buildscript {
+    ext.kotlin_version = '1.7.22'
     if (!project.hasProperty('version') || project.version.equals('unspecified')) {
-        project.version = '5+'
+        project.version = '5.49.0'
     }
 
     repositories {
-        jcenter()
-        mavenCentral()
         google()
+        mavenLocal()
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.mparticle:android-kit-plugin:5+'
-        classpath 'com.android.tools.build:gradle:2.3.3'
-        classpath 'com.f2prateek.javafmt:javafmt:0.1.6'
+        classpath 'com.android.tools.build:gradle:7.3.1'
+        classpath 'com.mparticle:android-kit-plugin:' + project.version
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0"
+    }
+}
 
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://maven.google.com" }
     }
 }
 
 apply plugin: 'com.mparticle.kit'
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
-
-group = project.bintrayGroupId
-version = project.bintrayPackageVersion
-
 android {
+
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 19
+    }
+
+    buildTypes {
+        release {
+            zipAlignEnabled false
+            minifyEnabled true
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            zipAlignEnabled false
+            minifyEnabled false
+        }
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources true
+            returnDefaultValues true
+        }
     }
 }
 
-repositories {
-    jcenter { url 'https://dl.bintray.com/swrve-inc/android' }
-    maven { url 'https://maven.google.com' }
-}
 dependencies {
-    api 'com.swrve.sdk.android:swrve-firebase:7.3.2'
+    api 'com.swrve.sdk.android:swrve-firebase:10.9.0'
+
+    testImplementation 'androidx.test:core:1.4.0'
+    testImplementation 'org.robolectric:robolectric:4.9'
+    testImplementation 'org.mockito:mockito-core:3.8.0'
 }
 
-install {
-    repositories.mavenInstaller {
-        pom.project {
-            name project.bintrayArtifactId
-            description project.bintrayDescription
-            url project.bintrayGithub
-
-            packaging 'aar'
-            groupId project.bintrayGroupId
-            artifactId project.bintrayArtifactId
-            version project.bintrayPackageVersion
-
-            licenses {
-                license {
-                    name 'The Apache Software License, Version 2.0'
-                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    distribution 'repo'
-                }
-            }
-            scm {
-                connection project.bintrayGithub + '.git'
-                url project.bintrayGithub
-
-            }
-            developers {
-                developer {
-                    name project.bintrayAuthor
-                }
-            }
-        }
-    }
-}
-
-bintray {
-    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-    configurations = ['archives']
-    pkg {
-        repo = 'android'
-        name = project.bintrayPackageName
-        userOrg = project.bintrayUserOrg
-        desc = project.description
-        labels = project.bintrayLabels
-        vcsUrl = project.bintrayGithub + '.git'
-        licenses = ['Apache-2.0']
-        issueTrackerUrl = project.bintrayGithub + '/issues'
-
-        version {
-            name = project.bintrayPackageVersion
-            desc = project.bintrayDescription
-            vcsTag = project.bintrayPackageVersion
-        }
-    }
-}
-
-apply plugin: 'com.f2prateek.javafmt'
+apply from: "build-maven-publish.gradle"

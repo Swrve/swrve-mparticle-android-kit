@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Swrve-mParticle</string>
+
+    <string name="swrve_notification_channel_id">123</string>
+    <string name="swrve_notification_channel_name">Notification Channel</string>
+    <string name="swrve_push_accent_color_hex">#3949AB</string>
+    <string name="swrve_notification_activity_class_name">com.mparticle.kits.MainActivity</string>
+
+</resources>
